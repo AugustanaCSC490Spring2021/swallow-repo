@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Course Connection</string>
+    <string name="placeholder">You logged in successfully! This is just placeholder text.</string>
+    <string name="loginBtn">Login</string>
+    <string name="invalidCreds">Invalid login information!</string>
+</resources>
