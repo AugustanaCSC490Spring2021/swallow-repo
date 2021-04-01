@@ -1,12 +1,12 @@
 package com.example.courseconnection;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
+        import androidx.appcompat.app.AppCompatActivity;
+        import androidx.viewpager.widget.ViewPager;
 
-import android.os.Bundle;
+        import android.os.Bundle;
 
-import com.google.android.material.tabs.TabItem;
-import com.google.android.material.tabs.TabLayout;
+        import com.google.android.material.tabs.TabItem;
+        import com.google.android.material.tabs.TabLayout;
 
 public class Home extends AppCompatActivity {
 

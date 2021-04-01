@@ -44,5 +44,4 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </androidx.viewpager.widget.ViewPager>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

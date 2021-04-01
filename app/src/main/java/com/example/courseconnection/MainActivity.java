@@ -51,7 +51,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.loginBtn:
                         if (email.getText().toString().equals("admin") && password.getText().toString().equals("admin")) {
                             //correct password
-                            signIn();
+                            invalidCreds.setVisibility(View.INVISIBLE);
+                            Intent intent = new Intent(getApplicationContext(),Home.class);
+                            startActivity(intent);
                         } else {
                             //wrong password
                             invalidCreds.setVisibility(View.VISIBLE);
