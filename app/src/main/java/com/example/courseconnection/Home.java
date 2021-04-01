@@ -1,74 +1,58 @@
 package com.example.courseconnection;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.tabs.TabItem;
+import com.google.android.material.tabs.TabLayout;
 
 public class Home extends AppCompatActivity {
 
-    TextView txt;
-    Button signOutBtn;
-    GoogleSignInClient mGoogleSignInClient;
-    Button unlinkBtn;
+    private TabLayout tablayout;
+    private ViewPager viewPager;
+    private TabItem leaderboard, reviews, forums;
+    private PageAdapter pageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        txt = (TextView)findViewById(R.id.textView);
-        signOutBtn = (Button)findViewById(R.id.signOutBtn);
-        unlinkBtn = (Button)findViewById(R.id.unlinkBtn);
+        tablayout = findViewById(R.id.tabs);
+        leaderboard = findViewById(R.id.Leaderboard);
+        reviews = findViewById(R.id.Reviews);
+        forums = findViewById(R.id.Forums);
+        viewPager = findViewById(R.id.viewpager);
 
-        String email = getIntent().getStringExtra("EMAIL");
-        txt.setText("You are currently signed in as: " + email);
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
+        pageAdapter = new PageAdapter(getSupportFragmentManager(), tablayout.getTabCount());
+        viewPager.setAdapter(pageAdapter);
+        tablayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View v) {
-                mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                        startActivity(intent);
-                    }
-                });
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 0){
+                    pageAdapter.notifyDataSetChanged();
+                } else if (tab.getPosition() == 1){
+                    pageAdapter.notifyDataSetChanged();
+                } else if (tab.getPosition() == 2){
+                    pageAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
-        unlinkBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                revokeAccess();
-            }
-        });
-    }
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
 
-    private void revokeAccess() {
-        mGoogleSignInClient.revokeAccess()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                        startActivity(intent);
-                    }
-                });
     }
-
 }
