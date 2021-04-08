@@ -53,6 +53,5 @@ public class Home extends AppCompatActivity {
         });
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
-
     }
 }
