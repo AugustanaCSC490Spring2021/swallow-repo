@@ -4,9 +4,14 @@ package com.example.courseconnection;
         import androidx.viewpager.widget.ViewPager;
 
         import android.os.Bundle;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.TextView;
 
         import com.google.android.material.tabs.TabItem;
         import com.google.android.material.tabs.TabLayout;
+        import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.auth.FirebaseUser;
 
 public class Home extends AppCompatActivity {
 
@@ -14,12 +19,23 @@ public class Home extends AppCompatActivity {
     private ViewPager viewPager;
     private TabItem leaderboard, reviews, forums;
     private PageAdapter pageAdapter;
+    private Button logOutBtn;
+    private TextView userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        userInfo = findViewById(R.id.userInfoTxt);
+        if (user != null){
+            String name = user.getDisplayName();
+            String email = user.getEmail();
+            userInfo.setText("Currently signed in as: " + name + " using email: " + email);
+        }
+
+        logOutBtn = findViewById(R.id.signOutBtn);
         tablayout = findViewById(R.id.tabs);
         leaderboard = findViewById(R.id.Leaderboard);
         reviews = findViewById(R.id.Reviews);
@@ -53,5 +69,10 @@ public class Home extends AppCompatActivity {
         });
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
+    }
+
+    public void signOut(View view) {
+        FirebaseAuth.getInstance().signOut();
+        finish();
     }
 }
