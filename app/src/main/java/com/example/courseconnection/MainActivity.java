@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -132,7 +131,15 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            if (user.getEmail().matches(".*\\d@augustana.edu"))
+                            {
+                                updateUI(user);
+                            }
+                            else
+                            {
+                                mGoogleSignInClient.signOut();
+                                Toast.makeText(MainActivity.this,"You may only sign in using an Augustana student email address!",Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
