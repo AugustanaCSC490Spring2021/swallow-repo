@@ -33,12 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener listener;
     private FirebaseAuth mAuth;
 
-    EditText email,password;
-    Button loginBtn;
-    TextView invalidCreds;
+    TextView signInInfo;
     GoogleSignInClient mGoogleSignInClient;
     SignInButton signInBtn;
-    GoogleSignInAccount account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +52,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.sign_in_button:
                         signIn();
                         break;
-                    // user clicked other sign in button
-                    case R.id.loginBtn:
-                        if (email.getText().toString().equals("admin") && password.getText().toString().equals("admin")) {
-                            //correct password
-                            invalidCreds.setVisibility(View.INVISIBLE);
-                            Intent intent = new Intent(getApplicationContext(),Home.class);
-                            startActivity(intent);;
-                        } else {
-                            //wrong password
-                            invalidCreds.setVisibility(View.VISIBLE);
-                        }
                 }
             }
         };
@@ -76,15 +62,10 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        email = (EditText)findViewById(R.id.email);
-        password = (EditText)findViewById(R.id.password);
-        invalidCreds = (TextView)findViewById(R.id.invalidCreds);
-        loginBtn = (Button)findViewById(R.id.loginBtn);
+        signInInfo = (TextView)findViewById(R.id.signInInfo);
         signInBtn = (SignInButton)findViewById(R.id.sign_in_button);
-
+        signInBtn.setSize(SignInButton.SIZE_WIDE);
         signInBtn.setOnClickListener(listener);
-
-        loginBtn.setOnClickListener(listener);
     }
 
     @Override
@@ -115,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signIn() {
-        invalidCreds.setVisibility(View.INVISIBLE);
         mGoogleSignInClient.signOut();
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -156,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         else{
-            invalidCreds.setVisibility(View.INVISIBLE);
             Intent intent = new Intent(getApplicationContext(),Home.class);
             startActivity(intent);
         }
