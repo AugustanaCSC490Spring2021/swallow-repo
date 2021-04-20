@@ -5,15 +5,19 @@ package com.example.courseconnection;
 
         import android.os.Bundle;
         import android.view.View;
+        import android.widget.AdapterView;
+        import android.widget.ArrayAdapter;
         import android.widget.Button;
+        import android.widget.Spinner;
         import android.widget.TextView;
+        import android.widget.Toast;
 
         import com.google.android.material.tabs.TabItem;
         import com.google.android.material.tabs.TabLayout;
         import com.google.firebase.auth.FirebaseAuth;
         import com.google.firebase.auth.FirebaseUser;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private TabLayout tablayout;
     private ViewPager viewPager;
@@ -21,6 +25,7 @@ public class Home extends AppCompatActivity {
     private PageAdapter pageAdapter;
     private Button logOutBtn;
     private TextView userInfo;
+    private Spinner departmentSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,7 @@ public class Home extends AppCompatActivity {
         forums = findViewById(R.id.Forums);
         viewPager = findViewById(R.id.viewpager);
 
+
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tablayout.getTabCount());
         viewPager.setAdapter(pageAdapter);
         tablayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -50,6 +56,7 @@ public class Home extends AppCompatActivity {
                 viewPager.setCurrentItem(tab.getPosition());
                 if (tab.getPosition() == 0){
                     pageAdapter.notifyDataSetChanged();
+
                 } else if (tab.getPosition() == 1){
                     pageAdapter.notifyDataSetChanged();
                 } else if (tab.getPosition() == 2){
@@ -69,10 +76,23 @@ public class Home extends AppCompatActivity {
         });
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
+
     }
 
     public void signOut(View view) {
         FirebaseAuth.getInstance().signOut();
         finish();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        String selectedSpinner = parent.getItemAtPosition(position).toString();
+        Toast.makeText(parent.getContext(), selectedSpinner, Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

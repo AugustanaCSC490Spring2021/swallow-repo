@@ -7,8 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         signInBtn = (SignInButton)findViewById(R.id.sign_in_button);
         signInBtn.setSize(SignInButton.SIZE_WIDE);
         signInBtn.setOnClickListener(listener);
+
+
+
     }
 
     @Override
@@ -140,4 +144,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+
 }
