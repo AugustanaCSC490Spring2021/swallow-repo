@@ -1,21 +1,21 @@
 package com.example.courseconnection;
 
-        import androidx.appcompat.app.AppCompatActivity;
-        import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
-        import android.os.Bundle;
-        import android.view.View;
-        import android.widget.AdapterView;
-        import android.widget.ArrayAdapter;
-        import android.widget.Button;
-        import android.widget.Spinner;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
-        import com.google.android.material.tabs.TabItem;
-        import com.google.android.material.tabs.TabLayout;
-        import com.google.firebase.auth.FirebaseAuth;
-        import com.google.firebase.auth.FirebaseUser;
+import com.google.android.material.tabs.TabItem;
+import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Home extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -24,7 +24,6 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
     private TabItem leaderboard, reviews, forums;
     private PageAdapter pageAdapter;
     private Button logOutBtn;
-    private TextView userInfo;
     private Spinner departmentSpinner;
 
     @Override
@@ -33,11 +32,10 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
         setContentView(R.layout.activity_home);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        userInfo = findViewById(R.id.userInfoTxt);
         if (user != null){
             String name = user.getDisplayName();
             String email = user.getEmail();
-            userInfo.setText("Currently signed in as: " + name + " using email: " + email);
+            Toast.makeText(Home.this,"Signed in as " + name + " with email " + email,Toast.LENGTH_LONG).show();
         }
 
         logOutBtn = findViewById(R.id.signOutBtn);
