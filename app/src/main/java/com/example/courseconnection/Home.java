@@ -1,9 +1,11 @@
 package com.example.courseconnection;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,13 +14,24 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Home extends AppCompatActivity {
 
+    private static final String TAG = "";
     private TabLayout tablayout;
     private ViewPager viewPager;
     private TabItem leaderboard, reviews, forums;
@@ -27,6 +40,8 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -34,6 +49,32 @@ public class Home extends AppCompatActivity {
         if (user != null){
             String name = user.getDisplayName();
             String email = user.getEmail();
+            String[] temp = name.split(" ",2);
+            String fName = temp[0];
+            String lName = temp[1];
+            int index = email.indexOf('@');
+            String id = email.substring(0,index);
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("first", fName);
+            userMap.put("last", lName);
+            userMap.put("email", email);
+
+            db.collection("users").document(id)
+                    .set(userMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+
+
             Toast.makeText(Home.this,"Signed in as " + name + " with email " + email,Toast.LENGTH_LONG).show();
         }
 
