@@ -42,6 +42,7 @@ public class Home extends AppCompatActivity {
         leaderboard = findViewById(R.id.Leaderboard);
         reviews = findViewById(R.id.Reviews);
         forums = findViewById(R.id.Forums);
+
         viewPager = findViewById(R.id.viewpager);
 
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tablayout.getTabCount());
