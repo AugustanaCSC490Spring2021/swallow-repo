@@ -1,5 +1,6 @@
 package com.example.courseconnection;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -21,6 +22,8 @@ import com.google.android.material.tabs.TabLayout;
  * create an instance of this fragment.
  */
 public class Review extends Fragment implements AdapterView.OnItemSelectedListener {
+
+    private static final String EXTRA_MESSAGE = "EXTRA_MESSAGE";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -75,6 +78,17 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
+
+        addReviewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), LeaveAReview.class);
+                String message = "Class Name";
+                intent.putExtra(EXTRA_MESSAGE, message);
+                startActivity(intent);
+
+            }
+        });
 
         return view;
     }

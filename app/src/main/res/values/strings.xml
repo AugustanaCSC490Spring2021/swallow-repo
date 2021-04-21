@@ -6,7 +6,7 @@
     <string name="signInInfo">Please use the Google Sign In button below to sign in using a valid Augustana student email.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="reviewSearchHint">Search For Professor</string>
+    <string name="reviewSearchHint">Search For Course</string>
 
     <string-array name="departmentTemp">
         <item>CSC</item>
@@ -14,4 +14,6 @@
         <item>Education</item>
         <item>Data Science</item>
     </string-array>
+    <string name="teacherLabel">What teacher did you take this course with?</string>
+    <string name="commentsLabel">Comments:</string>
 </resources>
