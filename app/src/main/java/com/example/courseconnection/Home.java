@@ -17,14 +17,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class Home extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class Home extends AppCompatActivity {
 
     private TabLayout tablayout;
     private ViewPager viewPager;
     private TabItem leaderboard, reviews, forums;
     private PageAdapter pageAdapter;
     private Button logOutBtn;
-    private Spinner departmentSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,6 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
         reviews = findViewById(R.id.Reviews);
         forums = findViewById(R.id.Forums);
         viewPager = findViewById(R.id.viewpager);
-
 
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tablayout.getTabCount());
         viewPager.setAdapter(pageAdapter);
@@ -82,15 +80,4 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
         finish();
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        String selectedSpinner = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), selectedSpinner, Toast.LENGTH_SHORT);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 }
