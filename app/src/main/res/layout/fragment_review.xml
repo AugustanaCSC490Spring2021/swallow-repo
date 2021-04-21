@@ -23,8 +23,8 @@
 
     <RatingBar
         android:id="@+id/ratingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="256dp"
+        android:layout_height="73dp"
         android:layout_marginBottom="100dp"
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -40,7 +40,7 @@
         android:layout_marginBottom="10dp"
         android:iconifiedByDefault="false"
         android:padding="10dp"
-        android:queryHint="@string/reviewSearchHint"
+        android:queryHint="Search For Course"
         app:defaultQueryHint="@string/reviewSearchHint"
         app:iconifiedByDefault="false"
         app:layout_constraintBottom_toTopOf="@+id/departmentSpinner"
