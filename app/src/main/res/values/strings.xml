@@ -9,6 +9,7 @@
     <string name="reviewSearchHint">Search For Course</string>
 
     <string-array name="courseCodes">
+        <item> </item>
         <item>ACCT</item>
         <item>AFSP</item>
         <item>ARHI</item>
