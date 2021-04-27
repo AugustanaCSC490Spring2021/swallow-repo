@@ -8,12 +8,77 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="reviewSearchHint">Search For Course</string>
 
-    <string-array name="departmentTemp">
+    <string-array name="courseCodes">
+        <item>ACCT</item>
+        <item>AFSP</item>
+        <item>ARHI</item>
+        <item>ART</item>
+        <item>ASIA</item>
+        <item>ASTR</item>
+        <item>BIOL</item>
+        <item>BUSN</item>
+        <item>CHEM</item>
+        <item>CHNS</item>
+        <item>CHST</item>
+        <item>CLAS</item>
+        <item>CSD</item>
+        <item>COMM</item>
         <item>CSC</item>
-        <item>Math</item>
-        <item>Education</item>
-        <item>Data Science</item>
+        <item>DATA</item>
+        <item>ECON</item>
+        <item>EDMU</item>
+        <item>EDUC</item>
+        <item>ENCW</item>
+        <item>ENGL</item>
+        <item>ENGR</item>
+        <item>ENTM</item>
+        <item>ENVR</item>
+        <item>FYI</item>
+        <item>FYH</item>
+        <item>FREN</item>
+        <item>GIST</item>
+        <item>GEOG</item>
+        <item>GEOL</item>
+        <item>GRD</item>
+        <item>GREK</item>
+        <item>GRMN</item>
+        <item>GRST</item>
+        <item>HEPE</item>
+        <item>HIST</item>
+        <item>HONR</item>
+        <item>ISS</item>
+        <item>JPN</item>
+        <item>JPST</item>
+        <item>KINS</item>
+        <item>LATN</item>
+        <item>LTAM</item>
+        <item>LSC</item>
+        <item>LING</item>
+        <item>MATH</item>
+        <item>MJMC</item>
+        <item>MUSC</item>
+        <item>MUCH</item>
+        <item>MUEN</item>
+        <item>PHIL</item>
+        <item>PHYS</item>
+        <item>POLS</item>
+        <item>PSYC</item>
+        <item>PUBH</item>
+        <item>RELG</item>
+        <item>SCAN</item>
+        <item>SLP</item>
+        <item>SOAN</item>
+        <item>SPAN</item>
+        <item>SPST</item>
+        <item>SWED</item>
+        <item>THEA</item>
+        <item>WLLC</item>
+        <item>WGST</item>
+        <item>WGSS</item>
+        <item>WLIT</item>
+
     </string-array>
+
     <string name="teacherLabel">What teacher did you take this course with?</string>
     <string name="commentsLabel">Comments:</string>
 </resources>

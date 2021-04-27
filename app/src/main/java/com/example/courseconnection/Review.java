@@ -90,7 +90,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         View view = inflater.inflate(R.layout.fragment_review, container, false);
         deptSpinner = (Spinner)view.findViewById(R.id.departmentSpinner);
         addReviewBtn = (Button)view.findViewById(R.id.addReviewBtn);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getContext(), R.array.departmentTemp, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getContext(), R.array.courseCodes, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
