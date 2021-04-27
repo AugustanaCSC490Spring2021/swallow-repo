@@ -12,7 +12,8 @@
         <activity android:name=".LeaveAReview"></activity>
         <activity
             android:name=".Home"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
