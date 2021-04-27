@@ -1,5 +1,7 @@
 package com.example.courseconnection;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -44,7 +46,8 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private Spinner deptSpinner;
     private Button addReviewBtn;
     private ListView lvCourses;
-    private List<String> courses = new ArrayList<>();
+    private List<String> reviewSummaries = new ArrayList<>();
+    private List<String> reviews = new ArrayList<>();
     private ArrayAdapter listAdapter;
 
     // TODO: Rename and change types of parameters
@@ -86,7 +89,8 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        courses.clear();
+        reviewSummaries.clear();
+        reviews.clear();
         View view = inflater.inflate(R.layout.fragment_review, container, false);
         deptSpinner = (Spinner)view.findViewById(R.id.departmentSpinner);
         addReviewBtn = (Button)view.findViewById(R.id.addReviewBtn);
@@ -95,8 +99,9 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
         lvCourses = view.findViewById(R.id.lvCourses);
-        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
+        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, reviewSummaries);
         lvCourses.setAdapter(listAdapter);
+        setupListViewListener();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -106,16 +111,22 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String course = new String();
-                            String score = new String();
-                            String comment = new String();
+                            String review = "";
+                            String course = "";
+                            String score = "";
+                            String comment = "";
+                            String reviewSummary = "";
+                            String user = "";
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 course = (String) document.get("course");
                                 score = document.get("rating").toString();
                                 comment = (String) document.get("comment");
-                                course = course +": "+score+" stars\n\""+comment+"\"";
-                                courses.add(course);
+                                user = (String) document.get("user");
+                                reviewSummary = course + ":        " + score + " stars\n";
+                                review = course +"\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                reviews.add(review);
+                                reviewSummaries.add(reviewSummary);
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -148,5 +159,29 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    // Attaches a click listener to the listview
+    private void setupListViewListener() {
+        lvCourses.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter,
+                                            View item, int pos, long id) {
+                        // View review within array at position pos
+                        String viewedReview = reviews.get(pos);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // user is done viewing contact
+                            }
+                        });
+                        builder.setTitle("Review");
+                        builder.setMessage(viewedReview);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                });
     }
 }
