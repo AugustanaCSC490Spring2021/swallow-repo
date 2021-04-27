@@ -2,12 +2,12 @@ package com.example.courseconnection;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
@@ -16,20 +16,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.tabs.TabItem;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LeaveAReview extends AppCompatActivity {
 
     private static final String TAG = "";
     private TextView teacherLabel, commentsLabel, reviewDisplayText;
-    private EditText teacherTextBox, commentsTextBox, courseLabel;
+    private EditText teacherTextBox, commentsTextBox, courseNum;
     private RatingBar ratingBar;
     private Button submitButton;
     private float ratingValue;
@@ -45,12 +45,23 @@ public class LeaveAReview extends AppCompatActivity {
         int index = email.indexOf('@');
         String id = email.substring(0,index);
 
-        courseLabel = findViewById(R.id.courseLabel);
+        courseNum = findViewById(R.id.courseNumText);
         teacherTextBox = findViewById(R.id.teacherTextBox);
         commentsTextBox = findViewById(R.id.commentsTextBox);
         reviewDisplayText = findViewById(R.id.reviewDisplayText);
         ratingBar = findViewById(R.id.ratingBar);
         submitButton = findViewById(R.id.submitButton);
+        List<String> courseCodes = Arrays.asList(getResources().getStringArray(R.array.courseCodes));
+
+        /*Code below found on Android's Development Documentation.
+        Used for the drop down box that opens when specifying a course code.
+         */
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, courseCodes);
+        AutoCompleteTextView textView = (AutoCompleteTextView)
+                findViewById(R.id.courseCodeText);
+        textView.setAdapter(adapter);
+        textView.setThreshold(0);
 
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -64,29 +75,33 @@ public class LeaveAReview extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Map<String, Object> review = new HashMap<>();
-                review.put("comment", commentsTextBox.getText().toString());
-                review.put("profName", teacherTextBox.getText().toString());
-                review.put("rating", ratingBar.getRating());
-                review.put("user", id);
-                review.put("course", courseLabel.getText().toString());
+                if (courseCodes.contains(textView.getText().toString()) && !(textView.getText().toString().equals(""))) {
+                    Map<String, Object> review = new HashMap<>();
+                    review.put("comment", commentsTextBox.getText().toString());
+                    review.put("profName", teacherTextBox.getText().toString());
+                    review.put("rating", ratingBar.getRating());
+                    review.put("user", id);
+                    review.put("course", textView.getText().toString() +"-"+ courseNum.getText().toString());
 
-                db.collection("reviews").add(review)
-                        .addOnSuccessListener(new OnSuccessListener() {
-                            @Override
-                            public void onSuccess(Object o) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
+                    db.collection("reviews").add(review)
+                            .addOnSuccessListener(new OnSuccessListener() {
+                                @Override
+                                public void onSuccess(Object o) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
 
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error writing document", e);
-                            }
-                        });
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
 
-                finish();
+                    finish();
+                }else{
+                    Toast.makeText(LeaveAReview.this, "Invalid Course Code", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
