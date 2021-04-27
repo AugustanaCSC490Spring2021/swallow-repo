@@ -76,7 +76,6 @@
         <item>WGST</item>
         <item>WGSS</item>
         <item>WLIT</item>
-
     </string-array>
 
     <string name="teacherLabel">What teacher did you take this course with?</string>
