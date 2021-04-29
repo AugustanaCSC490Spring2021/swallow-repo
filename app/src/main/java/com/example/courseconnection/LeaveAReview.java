@@ -81,7 +81,8 @@ public class LeaveAReview extends AppCompatActivity {
                     review.put("profName", teacherTextBox.getText().toString());
                     review.put("rating", ratingBar.getRating());
                     review.put("user", id);
-                    review.put("course", textView.getText().toString() +"-"+ courseNum.getText().toString());
+                    review.put("courseCode", textView.getText().toString());
+                    review.put("courseNum", courseNum.getText().toString());
 
                     db.collection("reviews").add(review)
                             .addOnSuccessListener(new OnSuccessListener() {

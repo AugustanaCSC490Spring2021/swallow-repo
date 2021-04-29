@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private List<String> reviewSummaries = new ArrayList<>();
     private List<String> reviews = new ArrayList<>();
     private ArrayAdapter listAdapter;
+    private EditText courseNumberEdit;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -92,8 +95,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        reviewSummaries.clear();
-        reviews.clear();
         View view = inflater.inflate(R.layout.fragment_review, container, false);
         deptSpinner = (Spinner)view.findViewById(R.id.departmentSpinner);
         addReviewBtn = (Button)view.findViewById(R.id.addReviewBtn);
@@ -106,45 +107,51 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         lvCourses.setAdapter(listAdapter);
         setupListViewListener();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // fill list with all reviews
+        populateList();
 
-        db.collection("reviews")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                String course = (String) document.get("course");
-                                String score = document.get("rating").toString();
-                                String comment = (String) document.get("comment");
-                                String user = (String) document.get("user");
-                                String reviewSummary = course + ":        " + score + " stars\n";
-                                String review = course +"\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                                reviews.add(review);
-                                reviewSummaries.add(reviewSummary);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        listAdapter.notifyDataSetChanged();
-                    }
-                });
+        courseNumberEdit = (EditText)view.findViewById(R.id.courseNumberView);
+        courseNumberEdit.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    String courseCode = deptSpinner.getSelectedItem().toString();
+                    String courseNum = courseNumberEdit.getText().toString();
+                    populateList(courseCode,courseNum);
+                    return true;
+                }
+                return false;
+            }
+        });
 
         addReviewBtn.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LeaveAReview.class);
-                String message = "Class Name";
-                intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
 
             }
         });
 
         return view;
+    }
+
+    // runs when something is selected on spinner, filters reviews to only show ones matching user input
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String selectedSpinner = parent.getItemAtPosition(position).toString();
+
+        // fill list with only courses from the desired course code
+        populateList(selectedSpinner);
+        }
+
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // unused override
     }
 
     // Attaches a click listener to the ListView
@@ -171,13 +178,108 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                 });
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // unused override
-    }
+    private void populateList()
+    {
+        reviewSummaries.clear();
+        reviews.clear();
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        // unused override
-    }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("reviews")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    Log.d(TAG, document.getId() + " => " + document.getData());
+                                    String courseCode = (String) document.get("courseCode");
+                                    String courseNum = (String) document.get("courseNum");
+                                    String course = courseCode + "-" + courseNum;
+                                    String score = document.get("rating").toString();
+                                    String comment = (String) document.get("comment");
+                                    String user = (String) document.get("user");
+                                    String reviewSummary = course + ":        " + score + " stars\n";
+                                    String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                    reviews.add(review);
+                                    reviewSummaries.add(reviewSummary);
+                                }
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                            listAdapter.notifyDataSetChanged();
+                        }
+                    });
+
+    };
+
+    private void populateList(String courseCode)
+    {
+        reviewSummaries.clear();
+        reviews.clear();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("reviews")
+                .whereEqualTo("courseCode", courseCode)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                String courseCode = (String) document.get("courseCode");
+                                String courseNum = (String) document.get("courseNum");
+                                String course = courseCode + "-" + courseNum;
+                                String score = document.get("rating").toString();
+                                String comment = (String) document.get("comment");
+                                String user = (String) document.get("user");
+                                String reviewSummary = course + ":        " + score + " stars\n";
+                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                reviews.add(review);
+                                reviewSummaries.add(reviewSummary);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                });
+    };
+
+    private void populateList(String courseCode, String courseNum)
+    {
+        reviewSummaries.clear();
+        reviews.clear();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("reviews")
+                .whereEqualTo("courseCode", courseCode)
+                .whereEqualTo("courseNum", courseNum)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                String courseCode = (String) document.get("courseCode");
+                                String courseNum = (String) document.get("courseNum");
+                                String course = courseCode + "-" + courseNum;
+                                String score = document.get("rating").toString();
+                                String comment = (String) document.get("comment");
+                                String user = (String) document.get("user");
+                                String reviewSummary = course + ":        " + score + " stars\n";
+                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                reviews.add(review);
+                                reviewSummaries.add(reviewSummary);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                });
+
+    };
 }
