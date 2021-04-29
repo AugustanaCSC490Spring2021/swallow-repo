@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -58,6 +59,8 @@ public class Home extends AppCompatActivity {
                 signOut();
                 return true;
             case R.id.myProfile:
+                Intent intent = new Intent(this, UserProfile.class);
+                startActivity(intent);
                 Toast.makeText(this, "Going to My Profile", Toast.LENGTH_SHORT).show();
                 return true;
             default:
