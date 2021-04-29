@@ -67,9 +67,6 @@ public class MainActivity extends AppCompatActivity {
         signInBtn = (SignInButton)findViewById(R.id.sign_in_button);
         signInBtn.setSize(SignInButton.SIZE_WIDE);
         signInBtn.setOnClickListener(listener);
-
-
-
     }
 
     @Override

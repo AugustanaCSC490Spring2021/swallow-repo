@@ -114,20 +114,14 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String review = "";
-                            String course = "";
-                            String score = "";
-                            String comment = "";
-                            String reviewSummary = "";
-                            String user = "";
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
-                                course = (String) document.get("course");
-                                score = document.get("rating").toString();
-                                comment = (String) document.get("comment");
-                                user = (String) document.get("user");
-                                reviewSummary = course + ":        " + score + " stars\n";
-                                review = course +"\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                String course = (String) document.get("course");
+                                String score = document.get("rating").toString();
+                                String comment = (String) document.get("comment");
+                                String user = (String) document.get("user");
+                                String reviewSummary = course + ":        " + score + " stars\n";
+                                String review = course +"\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
                                 reviews.add(review);
                                 reviewSummaries.add(reviewSummary);
                             }
@@ -153,18 +147,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         return view;
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String selectedSpinner = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), selectedSpinner, Toast.LENGTH_SHORT);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
-    // Attaches a click listener to the listview
+    // Attaches a click listener to the ListView
     private void setupListViewListener() {
         lvCourses.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
@@ -186,5 +169,15 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         dialog.show();
                     }
                 });
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // unused override
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // unused override
     }
 }

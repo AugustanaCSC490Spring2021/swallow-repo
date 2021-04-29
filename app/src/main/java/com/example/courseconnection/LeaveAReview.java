@@ -28,7 +28,7 @@ import java.util.Map;
 public class LeaveAReview extends AppCompatActivity {
 
     private static final String TAG = "";
-    private TextView teacherLabel, commentsLabel, reviewDisplayText;
+    private TextView reviewDisplayText;
     private EditText teacherTextBox, commentsTextBox, courseNum;
     private RatingBar ratingBar;
     private Button submitButton;
@@ -107,3 +107,4 @@ public class LeaveAReview extends AppCompatActivity {
 
     }
 }
+
