@@ -55,6 +55,7 @@ public class Home extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.signOut:
                 Toast.makeText(this, "Signed Out", Toast.LENGTH_SHORT).show();
+                signOut();
                 return true;
             case R.id.myProfile:
                 Toast.makeText(this, "Going to My Profile", Toast.LENGTH_SHORT).show();
@@ -104,7 +105,6 @@ public class Home extends AppCompatActivity {
             Toast.makeText(Home.this, "Signed in as " + name + " with email " + email, Toast.LENGTH_LONG).show();
         }
 
-        logOutBtn = findViewById(R.id.signOutBtn);
         tablayout = findViewById(R.id.tabs);
         leaderboard = findViewById(R.id.Leaderboard);
         reviews = findViewById(R.id.Reviews);
@@ -147,7 +147,7 @@ public class Home extends AppCompatActivity {
 
     }
 
-    public void signOut(View view) {
+    public void signOut() {
         FirebaseAuth.getInstance().signOut();
         finish();
     }
