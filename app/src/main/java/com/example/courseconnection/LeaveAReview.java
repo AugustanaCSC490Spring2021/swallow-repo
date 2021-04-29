@@ -28,7 +28,7 @@ import java.util.Map;
 public class LeaveAReview extends AppCompatActivity {
 
     private static final String TAG = "";
-    private TextView teacherLabel, commentsLabel, reviewDisplayText;
+    private TextView reviewDisplayText;
     private EditText teacherTextBox, commentsTextBox, courseNum;
     private RatingBar ratingBar;
     private Button submitButton;
@@ -81,7 +81,8 @@ public class LeaveAReview extends AppCompatActivity {
                     review.put("profName", teacherTextBox.getText().toString());
                     review.put("rating", ratingBar.getRating());
                     review.put("user", id);
-                    review.put("course", textView.getText().toString() +"-"+ courseNum.getText().toString());
+                    review.put("courseCode", textView.getText().toString());
+                    review.put("courseNum", courseNum.getText().toString());
 
                     db.collection("reviews").add(review)
                             .addOnSuccessListener(new OnSuccessListener() {
@@ -107,3 +108,4 @@ public class LeaveAReview extends AppCompatActivity {
 
     }
 }
+
