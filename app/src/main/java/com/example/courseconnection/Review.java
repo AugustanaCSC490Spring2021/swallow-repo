@@ -55,6 +55,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private List<String> reviews = new ArrayList<>();
     private ArrayAdapter listAdapter;
     private EditText courseNumberEdit;
+    private TextView emptyText;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -103,6 +104,8 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
         lvCourses = view.findViewById(R.id.lvCourses);
+        emptyText = (TextView)view.findViewById(R.id.empty);
+        lvCourses.setEmptyView(emptyText);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, reviewSummaries);
         lvCourses.setAdapter(listAdapter);
         setupListViewListener();
@@ -120,7 +123,13 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     // Perform action on key press
                     String courseCode = deptSpinner.getSelectedItem().toString();
                     String courseNum = courseNumberEdit.getText().toString();
-                    populateList(courseCode,courseNum);
+                    if (courseNum.equals(""))
+                    {
+                        populateList(courseCode);
+                    }
+                    else {
+                        populateList(courseCode, courseNum);
+                    }
                     return true;
                 }
                 return false;
@@ -167,7 +176,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // user is done viewing contact
                             }
                         });
                         builder.setTitle("Review");

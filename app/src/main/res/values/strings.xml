@@ -8,6 +8,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="reviewSearchHint">Search For Course</string>
     <string name="spinnerPrompt">Select Course Code</string>
+    <string name="emptyText">No reviews to show!</string>
 
     <string-array name="courseCodes">
         <item>Select Course Code</item>
