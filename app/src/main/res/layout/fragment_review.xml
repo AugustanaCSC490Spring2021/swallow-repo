@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="32dp"
         android:fadingEdge="vertical"
         android:requiresFadingEdge="vertical"
         android:scrollbars="vertical"
@@ -29,7 +29,7 @@
         app:layout_constraintHorizontal_bias="0.91"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9" />
+        app:layout_constraintVertical_bias="0.97" />
 
     <ListView
         android:id="@+id/lvCourses"
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:layout_marginTop="85dp"
+        android:layout_marginTop="26dp"
         android:clickable="true"
         android:hint="Course Number"
         android:inputType="number"
@@ -59,7 +59,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="32dp"
         android:text="-"
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/courseNumberView"

@@ -42,7 +42,6 @@ public class Home extends AppCompatActivity {
     private ViewPager viewPager;
     private TabItem leaderboard, reviews, forums;
     private PageAdapter pageAdapter;
-    private Button logOutBtn;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
