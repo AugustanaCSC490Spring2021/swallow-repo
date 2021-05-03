@@ -55,6 +55,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private List<String> reviews = new ArrayList<>();
     private ArrayAdapter listAdapter;
     private EditText courseNumberEdit;
+    private TextView emptyText;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -94,6 +95,8 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        reviewSummaries.clear();
+        reviews.clear();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_review, container, false);
         deptSpinner = (Spinner)view.findViewById(R.id.departmentSpinner);
@@ -103,16 +106,14 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
         lvCourses = view.findViewById(R.id.lvCourses);
-
-        // fill list with all reviews
-        populateList();
-
-        // display list on app
+        emptyText = (TextView)view.findViewById(R.id.empty);
+        lvCourses.setEmptyView(emptyText);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, reviewSummaries);
         lvCourses.setAdapter(listAdapter);
         setupListViewListener();
 
-
+        // fill list with all reviews
+        populateList();
 
         courseNumberEdit = (EditText)view.findViewById(R.id.courseNumberView);
         courseNumberEdit.setOnKeyListener(new View.OnKeyListener() {
@@ -124,7 +125,13 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     // Perform action on key press
                     String courseCode = deptSpinner.getSelectedItem().toString();
                     String courseNum = courseNumberEdit.getText().toString();
-                    populateList(courseCode,courseNum);
+                    if (courseNum.equals(""))
+                    {
+                        populateList(courseCode);
+                    }
+                    else {
+                        populateList(courseCode, courseNum);
+                    }
                     return true;
                 }
                 return false;
@@ -171,7 +178,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // user is done viewing contact
                             }
                         });
                         builder.setTitle("Review");
