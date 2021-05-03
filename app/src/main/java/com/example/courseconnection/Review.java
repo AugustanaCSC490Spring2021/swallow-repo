@@ -103,12 +103,16 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         deptSpinner.setAdapter(adapter);
         deptSpinner.setOnItemSelectedListener(this);
         lvCourses = view.findViewById(R.id.lvCourses);
+
+        // fill list with all reviews
+        populateList();
+
+        // display list on app
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, reviewSummaries);
         lvCourses.setAdapter(listAdapter);
         setupListViewListener();
 
-        // fill list with all reviews
-        populateList();
+
 
         courseNumberEdit = (EditText)view.findViewById(R.id.courseNumberView);
         courseNumberEdit.setOnKeyListener(new View.OnKeyListener() {
