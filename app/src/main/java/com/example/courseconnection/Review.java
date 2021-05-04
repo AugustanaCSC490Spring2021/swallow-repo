@@ -26,13 +26,19 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,6 +62,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private ArrayAdapter listAdapter;
     private EditText courseNumberEdit;
     private TextView emptyText;
+    private FirebaseFirestore db;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -157,8 +164,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
 
         // fill list with only courses from the desired course code
         populateList(selectedSpinner);
-        }
-
+    }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -193,33 +199,31 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviewSummaries.clear();
         reviews.clear();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("reviews")
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Log.d(TAG, document.getId() + " => " + document.getData());
-                                    String courseCode = (String) document.get("courseCode");
-                                    String courseNum = (String) document.get("courseNum");
-                                    String course = courseCode + "-" + courseNum;
-                                    String score = document.get("rating").toString();
-                                    String comment = (String) document.get("comment");
-                                    String user = (String) document.get("user");
-                                    String reviewSummary = course + ":        " + score + " stars\n";
-                                    String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                                    reviews.add(review);
-                                    reviewSummaries.add(reviewSummary);
-                                }
-                            } else {
-                                Log.d(TAG, "Error getting documents: ", task.getException());
+        db = FirebaseFirestore.getInstance();
+        db.collection("reviews")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String courseCode = (String) document.get("courseCode");
+                                String courseNum = (String) document.get("courseNum");
+                                String course = courseCode + "-" + courseNum;
+                                String score = document.get("rating").toString();
+                                String comment = (String) document.get("comment");
+                                String user = (String) document.get("user");
+                                String reviewSummary = course + ":        " + score + " stars\n";
+                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                                reviews.add(review);
+                                reviewSummaries.add(reviewSummary);
                             }
-                            listAdapter.notifyDataSetChanged();
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                    });
-
+                        listAdapter.notifyDataSetChanged();
+                    }
+                });
     };
 
     private void populateList(String courseCode)
@@ -227,7 +231,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviewSummaries.clear();
         reviews.clear();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         db.collection("reviews")
                 .whereEqualTo("courseCode", courseCode)
@@ -237,7 +241,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
                                 String courseCode = (String) document.get("courseCode");
                                 String courseNum = (String) document.get("courseNum");
                                 String course = courseCode + "-" + courseNum;
@@ -262,7 +265,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviewSummaries.clear();
         reviews.clear();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         db.collection("reviews")
                 .whereEqualTo("courseCode", courseCode)
                 .whereEqualTo("courseNum", courseNum)
@@ -272,7 +275,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
                                 String courseCode = (String) document.get("courseCode");
                                 String courseNum = (String) document.get("courseNum");
                                 String course = courseCode + "-" + courseNum;
@@ -290,6 +292,5 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         listAdapter.notifyDataSetChanged();
                     }
                 });
-
     };
 }
