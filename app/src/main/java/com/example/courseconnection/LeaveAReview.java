@@ -22,9 +22,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class LeaveAReview extends AppCompatActivity {
 
-    private static final String TAG = "---------------------";
+    private static final String TAG = "----------";
     private TextView reviewDisplayText;
     private EditText teacherTextBox, commentsTextBox, courseNum;
     private RatingBar ratingBar;
@@ -94,6 +94,7 @@ public class LeaveAReview extends AppCompatActivity {
                     review.put("user", id);
                     review.put("courseCode", textView.getText().toString());
                     review.put("courseNum", courseNum.getText().toString());
+                    review.put("date", FieldValue.serverTimestamp());
 
                     Log.wtf(TAG, "logging");
 
@@ -118,7 +119,8 @@ public class LeaveAReview extends AppCompatActivity {
 
                                             // Compute new average rating
                                             double oldRatingTotal =  (double) snapshot.get("avgRating") * numRatings;
-                                            double newAvgRating = (oldRatingTotal + rating) / newNumRatings;
+                                            double temp = (oldRatingTotal + rating) / newNumRatings;
+                                            double newAvgRating = Math.round(temp*100)/100.0d;
 
                                             // Update course
                                             transaction.update(courseRef, "numRatings",newNumRatings);

@@ -11,7 +11,7 @@
     <string name="emptyText">No reviews to show!</string>
 
     <string-array name="courseCodes">
-        <item>Select Course Code</item>
+        <item>All Course Codes</item>
         <item>ACCT</item>
         <item>AFSP</item>
         <item>ARHI</item>

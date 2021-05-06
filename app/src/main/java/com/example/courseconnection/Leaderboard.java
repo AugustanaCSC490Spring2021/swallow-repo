@@ -3,6 +3,7 @@ package com.example.courseconnection;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -16,11 +17,16 @@ import android.widget.Spinner;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -28,19 +34,20 @@ import java.util.List;
  * Use the {@link Leaderboard#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Leaderboard extends Fragment {
+public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private static final String TAG = "";
+    private static final String TAG = "-------------";
     private List<String> courses = new ArrayList<>();
     private ArrayAdapter listAdapter;
     private Spinner departmentSpinner, entriesSpinner;
     private ListView lvCourses;
     private FirebaseFirestore db;
+    private ListenerRegistration registration;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -91,17 +98,7 @@ public class Leaderboard extends Fragment {
         coursesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         departmentSpinner.setAdapter(coursesAdapter);
 
-        departmentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                populateList(departmentSpinner.getSelectedItem().toString());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-
-        });
+        departmentSpinner.setOnItemSelectedListener(this);
 
         List<Integer> entryNums = new ArrayList<>();
         entryNums.add(5);
@@ -120,30 +117,87 @@ public class Leaderboard extends Fragment {
         return view;
     }
 
-    private void populateList(String courseCode)
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if(position == 0)
+        {
+            populateList();
+        }
+        else
+        {
+            String selectedSpinner = parent.getItemAtPosition(position).toString();
+            // fill list with only courses from the desired course code
+            populateList(selectedSpinner);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // unused override
+    }
+
+    @Override
+    public void onDetach(){
+        super.onDetach();
+        registration.remove();
+    }
+
+    private void populateList()
     {
+        Log.wtf(TAG, "populating with ALL codes");
+
         courses.clear();
         int size = (int)entriesSpinner.getSelectedItem();
         db = FirebaseFirestore.getInstance();
 
-        db.collection("courses")
-                .whereEqualTo("code", courseCode)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String course = (String) document.get("Name");
-                                String score = document.get("avgRating").toString();
-                                String listing = course +": "+score+" /5";
-                                courses.add(listing);
+        Query query = db.collection("courses").orderBy("avgRating", Query.Direction.DESCENDING).limit(size);
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
 
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+                for (QueryDocumentSnapshot document : value) {
+                    String course = (String) document.get("name");
+                    String score = document.get("avgRating").toString();
+                    String listing = course +": "+score+" /5";
+                    courses.add(listing);
+                    listAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    };
+
+    private void populateList(String courseCode)
+    {
+        Log.wtf(TAG, "populating using code " + courseCode);
+
+        courses.clear();
+        int size = (int)entriesSpinner.getSelectedItem();
+        db = FirebaseFirestore.getInstance();
+
+        Query query = db.collection("courses").whereEqualTo("code",courseCode).orderBy("avgRating", Query.Direction.DESCENDING).limit(size);
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                for (QueryDocumentSnapshot document : value) {
+                    String course = (String) document.get("name");
+                    String score = document.get("avgRating").toString();
+                    String listing = course +": "+score+" /5";
+                    courses.add(listing);
+                    listAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     };
 }

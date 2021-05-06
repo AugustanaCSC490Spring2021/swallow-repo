@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -15,30 +16,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.Transaction;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,6 +61,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private EditText courseNumberEdit;
     private TextView emptyText;
     private FirebaseFirestore db;
+    private ListenerRegistration registration;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -119,9 +118,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         lvCourses.setAdapter(listAdapter);
         setupListViewListener();
 
-        // fill list with all reviews
-        populateList();
-
         courseNumberEdit = (EditText)view.findViewById(R.id.courseNumberView);
         courseNumberEdit.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -150,7 +146,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LeaveAReview.class);
                 startActivity(intent);
-
             }
         });
 
@@ -160,15 +155,34 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     // runs when something is selected on spinner, filters reviews to only show ones matching user input
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String selectedSpinner = parent.getItemAtPosition(position).toString();
+        if(position == 0)
+        {
+            populateList();
+        }
+        else
+        {
+            String selectedSpinner = parent.getItemAtPosition(position).toString();
 
-        // fill list with only courses from the desired course code
-        populateList(selectedSpinner);
+            // clear any selected course number
+            courseNumberEdit.setText("");
+
+            // fill list with only courses from the desired course code
+            populateList(selectedSpinner);
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // unused override
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        reviewSummaries.clear();
+        reviews.clear();
+        listAdapter.notifyDataSetChanged();
+        registration.remove();
     }
 
     // Attaches a click listener to the ListView
@@ -200,30 +214,50 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviews.clear();
 
         db = FirebaseFirestore.getInstance();
-        db.collection("reviews")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String courseCode = (String) document.get("courseCode");
-                                String courseNum = (String) document.get("courseNum");
-                                String course = courseCode + "-" + courseNum;
-                                String score = document.get("rating").toString();
-                                String comment = (String) document.get("comment");
-                                String user = (String) document.get("user");
-                                String reviewSummary = course + ":        " + score + " stars\n";
-                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                                reviews.add(review);
-                                reviewSummaries.add(reviewSummary);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        listAdapter.notifyDataSetChanged();
+        Query query = db.collection("reviews").orderBy("courseCode");
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                for (QueryDocumentSnapshot document : value) {
+                    String courseCode = (String) document.get("courseCode");
+                    String courseNum = (String) document.get("courseNum");
+                    String course = courseCode + "-" + courseNum;
+                    String score = document.get("rating").toString();
+                    String comment = (String) document.get("comment");
+                    String user = (String) document.get("user");
+                    if (document.get("date") != null){
+                        com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) document.get("date");
+                        long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(milliseconds);
+
+                        int mYear = calendar.get(Calendar.YEAR);
+                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+                        String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
+                        String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
                     }
-                });
+                    else
+                    {
+                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
+                    }
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+        });
     };
 
     private void populateList(String courseCode)
@@ -232,32 +266,51 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviews.clear();
 
         db = FirebaseFirestore.getInstance();
+        Query query = db.collection("reviews")
+                .whereEqualTo("courseCode", courseCode).orderBy("courseNum");
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
 
-        db.collection("reviews")
-                .whereEqualTo("courseCode", courseCode)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String courseCode = (String) document.get("courseCode");
-                                String courseNum = (String) document.get("courseNum");
-                                String course = courseCode + "-" + courseNum;
-                                String score = document.get("rating").toString();
-                                String comment = (String) document.get("comment");
-                                String user = (String) document.get("user");
-                                String reviewSummary = course + ":        " + score + " stars\n";
-                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                                reviews.add(review);
-                                reviewSummaries.add(reviewSummary);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        listAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot document : value) {
+                    String courseCode = (String) document.get("courseCode");
+                    String courseNum = (String) document.get("courseNum");
+                    String course = courseCode + "-" + courseNum;
+                    String score = document.get("rating").toString();
+                    String comment = (String) document.get("comment");
+                    String user = (String) document.get("user");
+                    if (document.get("date") != null){
+                        com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) document.get("date");
+                        long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(milliseconds);
+
+                        int mYear = calendar.get(Calendar.YEAR);
+                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+                        String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
+                        String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
                     }
-                });
+                    else
+                    {
+                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
+                    }
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+        });
     };
 
     private void populateList(String courseCode, String courseNum)
@@ -266,31 +319,51 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         reviews.clear();
 
         db = FirebaseFirestore.getInstance();
-        db.collection("reviews")
+        Query query = db.collection("reviews")
                 .whereEqualTo("courseCode", courseCode)
-                .whereEqualTo("courseNum", courseNum)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String courseCode = (String) document.get("courseCode");
-                                String courseNum = (String) document.get("courseNum");
-                                String course = courseCode + "-" + courseNum;
-                                String score = document.get("rating").toString();
-                                String comment = (String) document.get("comment");
-                                String user = (String) document.get("user");
-                                String reviewSummary = course + ":        " + score + " stars\n";
-                                String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                                reviews.add(review);
-                                reviewSummaries.add(reviewSummary);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        listAdapter.notifyDataSetChanged();
+                .whereEqualTo("courseNum", courseNum);
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                for (QueryDocumentSnapshot document : value) {
+                    String courseCode = (String) document.get("courseCode");
+                    String courseNum = (String) document.get("courseNum");
+                    String course = courseCode + "-" + courseNum;
+                    String score = document.get("rating").toString();
+                    String comment = (String) document.get("comment");
+                    String user = (String) document.get("user");
+                    if (document.get("date") != null){
+                        com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) document.get("date");
+                        long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(milliseconds);
+
+                        int mYear = calendar.get(Calendar.YEAR);
+                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+                        String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
+                        String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
                     }
-                });
+                    else
+                    {
+                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
+                        String reviewSummary = course + ":        " + score + " stars\n";
+                        reviewSummaries.add(reviewSummary);
+                        reviews.add(review);
+                    }
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+        });
     };
 }
