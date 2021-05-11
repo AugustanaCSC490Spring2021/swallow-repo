@@ -35,7 +35,7 @@ import java.util.List;
  * Use the {@link Leaderboard#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedListener {
+public class Leaderboard extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -100,7 +100,26 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
         coursesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         departmentSpinner.setAdapter(coursesAdapter);
 
-        departmentSpinner.setOnItemSelectedListener(this);
+        departmentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                courses.clear();
+                listAdapter.notifyDataSetChanged();
+                if(departmentSpinner.getSelectedItemPosition() == 0)
+                {
+                    populateList();
+                }
+                else
+                {
+                    populateList(departmentSpinner.getItemAtPosition(position).toString());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         List<Integer> entryNums = new ArrayList<>();
         entryNums.add(5);
@@ -112,45 +131,44 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
         entriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         entriesSpinner.setAdapter(entriesAdapter);
 
+        entriesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                courses.clear();
+                listAdapter.notifyDataSetChanged();
+                if (departmentSpinner.getSelectedItemPosition() == 0){
+                    populateList();
+                } else {
+                    // fill list with only courses from the desired course code
+                    populateList(departmentSpinner.getItemAtPosition(departmentSpinner.getSelectedItemPosition()).toString());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         lvCourses = view.findViewById(R.id.lvCourses);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
         lvCourses.setAdapter(listAdapter);
-        emptyText = view.findViewById(R.id.empty);
-        lvCourses.setEmptyView(emptyText);
+        //emptyText = view.findViewById(R.id.empty);
+        //lvCourses.setEmptyView(emptyText);
 
         return view;
-    }
-
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        courses.clear();
-        listAdapter.notifyDataSetChanged();
-        if(position == 0)
-        {
-            populateList();
-        }
-        else
-        {
-            String selectedSpinner = parent.getItemAtPosition(position).toString();
-            // fill list with only courses from the desired course code
-            populateList(selectedSpinner);
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        // unused override
     }
 
     @Override
     public void onDetach(){
         super.onDetach();
         registration.remove();
+        courses.clear();
+        listAdapter.notifyDataSetChanged();
     }
 
-    private void populateList()
-    {
+    private void populateList() {
+        courses.clear();
         Log.wtf(TAG, "populating with ALL codes");
 
         int size = (int)entriesSpinner.getSelectedItem();
@@ -165,20 +183,22 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                     Log.w(TAG, "Listen failed.", e);
                     return;
                 }
-
+                int place = 1;
                 for (QueryDocumentSnapshot document : value) {
+
                     String course = (String) document.get("name");
                     String score = document.get("avgRating").toString();
-                    String listing = course +": "+score+" /5";
+                    String listing = place+": "+course +"("+score+" /5)";
                     courses.add(listing);
+                    place++;
                 }
                 listAdapter.notifyDataSetChanged();
             }
         });
     };
 
-    private void populateList(String courseCode)
-    {
+    private void populateList(String courseCode) {
+        courses.clear();
         Log.wtf(TAG, "populating using code " + courseCode);
 
         int size = (int)entriesSpinner.getSelectedItem();
@@ -193,12 +213,14 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                     Log.w(TAG, "Listen failed.", e);
                     return;
                 }
-
+                int place = 1;
                 for (QueryDocumentSnapshot document : value) {
+
                     String course = (String) document.get("name");
                     String score = document.get("avgRating").toString();
-                    String listing = course +": "+score+" /5";
+                    String listing = place+": "+course +" ("+score+" /5)";
                     courses.add(listing);
+                    place++;
                 }
                 listAdapter.notifyDataSetChanged();
             }
