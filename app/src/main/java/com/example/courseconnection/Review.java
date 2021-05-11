@@ -155,6 +155,10 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     // runs when something is selected on spinner, filters reviews to only show ones matching user input
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        reviewSummaries.clear();
+        reviews.clear();
+        listAdapter.notifyDataSetChanged();
+
         if(position == 0)
         {
             populateList();
@@ -210,9 +214,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
 
     private void populateList()
     {
-        reviewSummaries.clear();
-        reviews.clear();
-
         db = FirebaseFirestore.getInstance();
         Query query = db.collection("reviews").orderBy("courseCode");
         registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -262,9 +263,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
 
     private void populateList(String courseCode)
     {
-        reviewSummaries.clear();
-        reviews.clear();
-
         db = FirebaseFirestore.getInstance();
         Query query = db.collection("reviews")
                 .whereEqualTo("courseCode", courseCode).orderBy("courseNum");
@@ -315,9 +313,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
 
     private void populateList(String courseCode, String courseNum)
     {
-        reviewSummaries.clear();
-        reviews.clear();
-
         db = FirebaseFirestore.getInstance();
         Query query = db.collection("reviews")
                 .whereEqualTo("courseCode", courseCode)

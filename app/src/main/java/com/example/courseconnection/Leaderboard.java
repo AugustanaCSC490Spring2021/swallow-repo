@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -47,6 +48,7 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
     private Spinner departmentSpinner, entriesSpinner;
     private ListView lvCourses;
     private FirebaseFirestore db;
+    private TextView emptyText;
     private ListenerRegistration registration;
 
     // TODO: Rename and change types of parameters
@@ -113,6 +115,8 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
         lvCourses = view.findViewById(R.id.lvCourses);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
         lvCourses.setAdapter(listAdapter);
+        emptyText = view.findViewById(R.id.empty);
+        lvCourses.setEmptyView(emptyText);
 
         return view;
     }
@@ -120,6 +124,8 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        courses.clear();
+        listAdapter.notifyDataSetChanged();
         if(position == 0)
         {
             populateList();
@@ -147,7 +153,6 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
     {
         Log.wtf(TAG, "populating with ALL codes");
 
-        courses.clear();
         int size = (int)entriesSpinner.getSelectedItem();
         db = FirebaseFirestore.getInstance();
 
@@ -166,8 +171,8 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                     String score = document.get("avgRating").toString();
                     String listing = course +": "+score+" /5";
                     courses.add(listing);
-                    listAdapter.notifyDataSetChanged();
                 }
+                listAdapter.notifyDataSetChanged();
             }
         });
     };
@@ -176,7 +181,6 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
     {
         Log.wtf(TAG, "populating using code " + courseCode);
 
-        courses.clear();
         int size = (int)entriesSpinner.getSelectedItem();
         db = FirebaseFirestore.getInstance();
 
@@ -195,8 +199,8 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                     String score = document.get("avgRating").toString();
                     String listing = course +": "+score+" /5";
                     courses.add(listing);
-                    listAdapter.notifyDataSetChanged();
                 }
+                listAdapter.notifyDataSetChanged();
             }
         });
     };
