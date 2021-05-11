@@ -220,6 +220,10 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
             @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
+                reviewSummaries.clear();
+                reviews.clear();
+                listAdapter.notifyDataSetChanged();
+
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e);
                     return;
@@ -245,13 +249,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
                         String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
                         String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
-                        reviewSummaries.add(reviewSummary);
-                        reviews.add(review);
-                    }
-                    else
-                    {
-                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                        String reviewSummary = course + ":        " + score + " stars\n";
                         reviewSummaries.add(reviewSummary);
                         reviews.add(review);
                     }
@@ -270,6 +267,10 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
             @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
+                reviewSummaries.clear();
+                reviews.clear();
+                listAdapter.notifyDataSetChanged();
+
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e);
                     return;
@@ -295,13 +296,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
                         String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
                         String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
-                        reviewSummaries.add(reviewSummary);
-                        reviews.add(review);
-                    }
-                    else
-                    {
-                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                        String reviewSummary = course + ":        " + score + " stars\n";
                         reviewSummaries.add(reviewSummary);
                         reviews.add(review);
                     }
@@ -321,6 +315,10 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
             @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
+                reviewSummaries.clear();
+                reviews.clear();
+                listAdapter.notifyDataSetChanged();
+
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e);
                     return;
@@ -346,13 +344,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
                         String review = course + "\nDate of review: " + date + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
                         String reviewSummary = course + ":        " + score + " stars on " + date +"\n";
-                        reviewSummaries.add(reviewSummary);
-                        reviews.add(review);
-                    }
-                    else
-                    {
-                        String review = course + "\nUser " + user + " said: " + score + " stars\n\"" + comment + "\"";
-                        String reviewSummary = course + ":        " + score + " stars\n";
                         reviewSummaries.add(reviewSummary);
                         reviews.add(review);
                     }

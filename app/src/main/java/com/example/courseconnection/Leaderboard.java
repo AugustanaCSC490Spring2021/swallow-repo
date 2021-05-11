@@ -153,8 +153,6 @@ public class Leaderboard extends Fragment {
         lvCourses = view.findViewById(R.id.lvCourses);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
         lvCourses.setAdapter(listAdapter);
-        //emptyText = view.findViewById(R.id.empty);
-        //lvCourses.setEmptyView(emptyText);
 
         return view;
     }
@@ -169,6 +167,8 @@ public class Leaderboard extends Fragment {
 
     private void populateList() {
         courses.clear();
+        listAdapter.notifyDataSetChanged();
+
         Log.wtf(TAG, "populating with ALL codes");
 
         int size = (int)entriesSpinner.getSelectedItem();
@@ -199,6 +199,8 @@ public class Leaderboard extends Fragment {
 
     private void populateList(String courseCode) {
         courses.clear();
+        listAdapter.notifyDataSetChanged();
+
         Log.wtf(TAG, "populating using code " + courseCode);
 
         int size = (int)entriesSpinner.getSelectedItem();

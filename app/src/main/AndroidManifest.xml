@@ -13,6 +13,7 @@
             android:parentActivityName=".Home"
             ></activity>
         <activity android:name=".LeaveAReview" />
+        <activity android:name=".NewForumPost" />
         <activity
             android:name=".Home"
             android:parentActivityName=".MainActivity"

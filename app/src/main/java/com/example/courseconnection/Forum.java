@@ -1,12 +1,38 @@
 package com.example.courseconnection;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +45,17 @@ public class Forum extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "";
+    private Spinner deptSpinner;
+    private Button addForumPostBtn;
+    private ListView lvCourses;
+    private List<String> postSummaries = new ArrayList<>();
+    private List<String> posts = new ArrayList<>();
+    private ArrayAdapter listAdapter;
+    private EditText courseNumberEdit;
+    private TextView emptyText,defaultText;
+    private FirebaseFirestore db;
+    private ListenerRegistration registration;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -34,11 +71,11 @@ public class Forum extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Forum.
+     * @return A new instance of fragment Review.
      */
     // TODO: Rename and change types and number of parameters
-    public static Forum newInstance(String param1, String param2) {
-        Forum fragment = new Forum();
+    public static Review newInstance(String param1, String param2) {
+        Review fragment = new Review();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -58,7 +95,133 @@ public class Forum extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        postSummaries.clear();
+        posts.clear();
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_forum, container, false);
+        View view = inflater.inflate(R.layout.fragment_forum, container, false);
+        deptSpinner = (Spinner)view.findViewById(R.id.departmentSpinner);
+        addForumPostBtn = (Button)view.findViewById(R.id.addForumPostBtn);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getContext(), R.array.courseCodes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        deptSpinner.setAdapter(adapter);
+        lvCourses = view.findViewById(R.id.lvCourses);
+        emptyText = (TextView)view.findViewById(R.id.empty);
+        defaultText = view.findViewById(R.id.defaultText);
+        lvCourses.setEmptyView(emptyText);
+        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, postSummaries);
+        lvCourses.setAdapter(listAdapter);
+        setupListViewListener();
+
+        courseNumberEdit = (EditText)view.findViewById(R.id.courseNumberView);
+        courseNumberEdit.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    String courseCode = deptSpinner.getSelectedItem().toString();
+                    String courseNum = courseNumberEdit.getText().toString();
+
+                    populateList(courseCode, courseNum);
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        addForumPostBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), NewForumPost.class);
+                startActivity(intent);
+            }
+        });
+
+        return view;
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        postSummaries.clear();
+        posts.clear();
+        listAdapter.notifyDataSetChanged();
+        registration.remove();
+    }
+
+    // Attaches a click listener to the ListView
+    private void setupListViewListener() {
+        lvCourses.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter,
+                                            View item, int pos, long id) {
+                        // View review within array at position pos
+                        String viewedReview = posts.get(pos);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.setTitle("Review");
+                        builder.setMessage(viewedReview);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                });
+    }
+
+    private void populateList(String courseCode, String courseNum)
+    {
+        defaultText.setVisibility(View.INVISIBLE);
+
+        postSummaries.clear();
+        posts.clear();
+        listAdapter.notifyDataSetChanged();
+
+        String courseTitle = courseCode + "-" + courseNum;
+        db = FirebaseFirestore.getInstance();
+        Log.wtf("-----", "populating using course " + courseTitle);
+        Query query = db.collection("forum_posts")
+                .whereEqualTo("course", courseTitle);
+        registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                for (QueryDocumentSnapshot document : value) {
+                    String course = (String) document.get("course");
+                    String text = (String) document.get("text");
+                    String user = (String) document.get("user");
+                    String textBeginning = text;
+                    if (text.length() >= 20) {
+                        textBeginning = text.substring(0, 20);
+                    }
+
+                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) document.get("date");
+                    long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(milliseconds);
+                    int mYear = calendar.get(Calendar.YEAR);
+                    int mMonth = calendar.get(Calendar.MONTH);
+                    int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+                    String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
+                    String postSummary = course + ":\n" + user + ": " + textBeginning;
+                    String post = course + "\nPosted on: " + date + "\nUser " + user + " said: \n\"" + text + "\"";
+                    postSummaries.add(postSummary);
+                    posts.add(post);
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+        });
+    };
 }
