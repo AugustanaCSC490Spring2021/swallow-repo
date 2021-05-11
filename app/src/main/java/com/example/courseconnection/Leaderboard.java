@@ -131,6 +131,7 @@ public class Leaderboard extends Fragment {
         entriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         entriesSpinner.setAdapter(entriesAdapter);
 
+        entriesSpinner.setSelection(0,false);
         entriesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
