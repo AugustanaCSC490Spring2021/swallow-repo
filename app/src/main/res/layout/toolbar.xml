@@ -6,11 +6,11 @@
     android:background="@color/augie_Yellow"
     android:elevation="4dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    app:logo="@drawable/augie_a_yellow">
 
 </androidx.appcompat.widget.Toolbar>
 
 
 
-<!--   app:logo="@drawable/augie_a"-->
+<!--   -->
