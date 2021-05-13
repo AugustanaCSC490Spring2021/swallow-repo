@@ -1,5 +1,7 @@
 package com.example.courseconnection;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -44,6 +46,7 @@ public class Leaderboard extends Fragment {
 
     private static final String TAG = "-------------";
     private List<String> courses = new ArrayList<>();
+    private List<String> coursesInfo = new ArrayList<>();
     private ArrayAdapter listAdapter;
     private Spinner departmentSpinner, entriesSpinner;
     private ListView lvCourses;
@@ -103,7 +106,6 @@ public class Leaderboard extends Fragment {
         departmentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                courses.clear();
                 listAdapter.notifyDataSetChanged();
                 if(departmentSpinner.getSelectedItemPosition() == 0)
                 {
@@ -135,7 +137,6 @@ public class Leaderboard extends Fragment {
         entriesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                courses.clear();
                 listAdapter.notifyDataSetChanged();
                 if (departmentSpinner.getSelectedItemPosition() == 0){
                     populateList();
@@ -154,7 +155,7 @@ public class Leaderboard extends Fragment {
         lvCourses = view.findViewById(R.id.lvCourses);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
         lvCourses.setAdapter(listAdapter);
-
+        setupListViewListener();
         return view;
     }
 
@@ -166,8 +167,32 @@ public class Leaderboard extends Fragment {
         listAdapter.notifyDataSetChanged();
     }
 
+    // Attaches a click listener to the ListView
+    private void setupListViewListener() {
+        lvCourses.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter,
+                                            View item, int pos, long id) {
+                        // View review within array at position pos
+                        String viewedCourse = coursesInfo.get(pos);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.setTitle("More info");
+                        builder.setMessage(viewedCourse);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                });
+    }
+
     private void populateList() {
         courses.clear();
+        coursesInfo.clear();
         listAdapter.notifyDataSetChanged();
 
         Log.wtf(TAG, "populating with ALL codes");
@@ -189,8 +214,10 @@ public class Leaderboard extends Fragment {
 
                     String course = (String) document.get("name");
                     String score = document.get("avgRating").toString();
+                    String numReviews = document.get("numRatings").toString();
                     String listing = place+": "+course +"("+score+" /5)";
                     courses.add(listing);
+                    coursesInfo.add("Average "+score+" stars over "+numReviews+" reviews");
                     place++;
                 }
                 listAdapter.notifyDataSetChanged();
@@ -200,6 +227,7 @@ public class Leaderboard extends Fragment {
 
     private void populateList(String courseCode) {
         courses.clear();
+        coursesInfo.clear();
         listAdapter.notifyDataSetChanged();
 
         Log.wtf(TAG, "populating using code " + courseCode);
