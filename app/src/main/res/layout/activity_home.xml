@@ -19,9 +19,13 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/augie_Yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:tabIndicatorColor="@color/augie_Blue"
+        app:tabIndicatorFullWidth="false"
+        app:tabTextColor="@color/augie_Blue">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/Leaderboard"
