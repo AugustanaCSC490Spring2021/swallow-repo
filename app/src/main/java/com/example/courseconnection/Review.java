@@ -1,5 +1,6 @@
 package com.example.courseconnection;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,8 +46,6 @@ import java.util.List;
  */
 public class Review extends Fragment implements AdapterView.OnItemSelectedListener {
 
-    private static final String EXTRA_MESSAGE = "EXTRA_MESSAGE";
-
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +61,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     private TextView emptyText;
     private FirebaseFirestore db;
     private ListenerRegistration registration;
+    private final int LEAVE_REVIEW = 1;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -145,11 +145,27 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LeaveAReview.class);
-                startActivity(intent);
+                startActivityForResult(intent,LEAVE_REVIEW);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (LEAVE_REVIEW) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    // if the review was left successfully, do this
+                    reviewSummaries.clear();
+                    reviews.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+                break;
+            }
+        }
     }
 
     // runs when something is selected on spinner, filters reviews to only show ones matching user input
@@ -166,10 +182,8 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
         else
         {
             String selectedSpinner = parent.getItemAtPosition(position).toString();
-
             // clear any selected course number
             courseNumberEdit.setText("");
-
             // fill list with only courses from the desired course code
             populateList(selectedSpinner);
         }
@@ -178,15 +192,6 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // unused override
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        reviewSummaries.clear();
-        reviews.clear();
-        listAdapter.notifyDataSetChanged();
-        registration.remove();
     }
 
     // Attaches a click listener to the ListView
@@ -243,7 +248,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         calendar.setTimeInMillis(milliseconds);
 
                         int mYear = calendar.get(Calendar.YEAR);
-                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mMonth = calendar.get(Calendar.MONTH) + 1;
                         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
@@ -290,7 +295,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         calendar.setTimeInMillis(milliseconds);
 
                         int mYear = calendar.get(Calendar.YEAR);
-                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mMonth = calendar.get(Calendar.MONTH) + 1;
                         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
@@ -338,7 +343,7 @@ public class Review extends Fragment implements AdapterView.OnItemSelectedListen
                         calendar.setTimeInMillis(milliseconds);
 
                         int mYear = calendar.get(Calendar.YEAR);
-                        int mMonth = calendar.get(Calendar.MONTH);
+                        int mMonth = calendar.get(Calendar.MONTH) + 1;
                         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
                         String date = String.format("%s/%s/%s", mMonth,mDay,mYear);

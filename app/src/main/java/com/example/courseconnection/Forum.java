@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -30,6 +32,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -53,7 +58,7 @@ public class Forum extends Fragment {
     private List<String> posts = new ArrayList<>();
     private ArrayAdapter listAdapter;
     private EditText courseNumberEdit;
-    private TextView emptyText,defaultText;
+    private TextView emptyText;
     private FirebaseFirestore db;
     private ListenerRegistration registration;
 
@@ -107,7 +112,6 @@ public class Forum extends Fragment {
         deptSpinner.setAdapter(adapter);
         lvCourses = view.findViewById(R.id.lvCourses);
         emptyText = (TextView)view.findViewById(R.id.empty);
-        defaultText = view.findViewById(R.id.defaultText);
         lvCourses.setEmptyView(emptyText);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, postSummaries);
         lvCourses.setAdapter(listAdapter);
@@ -167,7 +171,7 @@ public class Forum extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                             }
                         });
-                        builder.setTitle("Review");
+                        builder.setTitle("Post");
                         builder.setMessage(viewedReview);
                         AlertDialog dialog = builder.create();
                         dialog.show();
@@ -177,8 +181,6 @@ public class Forum extends Fragment {
 
     private void populateList(String courseCode, String courseNum)
     {
-        defaultText.setVisibility(View.INVISIBLE);
-
         postSummaries.clear();
         posts.clear();
         listAdapter.notifyDataSetChanged();
@@ -189,6 +191,7 @@ public class Forum extends Fragment {
         Query query = db.collection("forum_posts")
                 .whereEqualTo("course", courseTitle);
         registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
@@ -211,12 +214,14 @@ public class Forum extends Fragment {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(milliseconds);
                     int mYear = calendar.get(Calendar.YEAR);
-                    int mMonth = calendar.get(Calendar.MONTH);
+                    int mMonth = calendar.get(Calendar.MONTH) + 1;
                     int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+                    LocalDateTime localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.of("America/Chicago"));
+                    String postTime = localDate.getHour() + ":" + localDate.getMinute() + " CST";
 
                     String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
                     String postSummary = course + ":\n" + user + ": " + textBeginning;
-                    String post = course + "\nPosted on: " + date + "\nUser " + user + " said: \n\"" + text + "\"";
+                    String post = course + "\nPosted on: " + date + " at " + postTime + "\nUser " + user + " said: \n\"" + text + "\"";
                     postSummaries.add(postSummary);
                     posts.add(post);
                 }

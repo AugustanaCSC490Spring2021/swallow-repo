@@ -94,7 +94,6 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
-    <string name="emptyForumText">No forum posts for this course yet!</string>
-    <string name="defaultForumText">Select a course code and number to view forum posts for that course.</string>
+    <string name="emptyForumText">No forum posts to show here yet!</string>
 
 </resources>

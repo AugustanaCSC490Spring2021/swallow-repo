@@ -3,6 +3,8 @@ package com.example.courseconnection;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -173,6 +175,8 @@ public class LeaveAReview extends AppCompatActivity {
                                 }
                             });
 
+                    Intent result = new Intent();
+                    setResult(Activity.RESULT_OK, result);
                     finish();
                 }else{
                     Toast.makeText(LeaveAReview.this, "Invalid Course Code", Toast.LENGTH_SHORT).show();
