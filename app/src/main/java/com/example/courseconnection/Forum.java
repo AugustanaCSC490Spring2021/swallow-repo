@@ -1,5 +1,6 @@
 package com.example.courseconnection;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -61,6 +62,7 @@ public class Forum extends Fragment {
     private TextView emptyText;
     private FirebaseFirestore db;
     private ListenerRegistration registration;
+    private final int NEW_POST = 2;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -140,7 +142,7 @@ public class Forum extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), NewForumPost.class);
-                startActivity(intent);
+                startActivityForResult(intent,NEW_POST);
             }
         });
 
@@ -148,12 +150,19 @@ public class Forum extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        postSummaries.clear();
-        posts.clear();
-        listAdapter.notifyDataSetChanged();
-        registration.remove();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (NEW_POST) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    // if the post was made successfully, do this
+                    postSummaries.clear();
+                    posts.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+                break;
+            }
+        }
     }
 
     // Attaches a click listener to the ListView
@@ -189,7 +198,7 @@ public class Forum extends Fragment {
         db = FirebaseFirestore.getInstance();
         Log.wtf("-----", "populating using course " + courseTitle);
         Query query = db.collection("forum_posts")
-                .whereEqualTo("course", courseTitle);
+                .whereEqualTo("course", courseTitle).orderBy("date", Query.Direction.DESCENDING);
         registration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -206,24 +215,38 @@ public class Forum extends Fragment {
                     String user = (String) document.get("user");
                     String textBeginning = text;
                     if (text.length() >= 20) {
-                        textBeginning = text.substring(0, 20);
+                        textBeginning = text.substring(0, 20) + "...";
                     }
 
                     com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) document.get("date");
-                    long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(milliseconds);
-                    int mYear = calendar.get(Calendar.YEAR);
-                    int mMonth = calendar.get(Calendar.MONTH) + 1;
-                    int mDay = calendar.get(Calendar.DAY_OF_MONTH);
-                    LocalDateTime localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.of("America/Chicago"));
-                    String postTime = localDate.getHour() + ":" + localDate.getMinute() + " CST";
+                    if (time == null){
+                        String postSummary = course + ":\nLess than a minute ago\n" + user + ": " + textBeginning;
+                        String post = course + "\nPosted less than a minute ago\nUser " + user + " said: \n\"" + text + "\"";
+                        postSummaries.add(postSummary);
+                        posts.add(post);
+                    }
+                    else
+                    {
+                        long milliseconds = time.getSeconds() * 1000 + time.getNanoseconds()/1000000;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(milliseconds);
+                        int mYear = calendar.get(Calendar.YEAR);
+                        int mMonth = calendar.get(Calendar.MONTH) + 1;
+                        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+                        LocalDateTime localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.of("America/Chicago"));
+                        String minute = String.valueOf(localDate.getMinute());
+                        if (localDate.getMinute() < 10){
+                            minute = "0" + minute;
+                        }
 
-                    String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
-                    String postSummary = course + ":\n" + user + ": " + textBeginning;
-                    String post = course + "\nPosted on: " + date + " at " + postTime + "\nUser " + user + " said: \n\"" + text + "\"";
-                    postSummaries.add(postSummary);
-                    posts.add(post);
+                        String postTime = localDate.getHour() + ":" + minute + " CST";
+
+                        String date = String.format("%s/%s/%s", mMonth,mDay,mYear);
+                        String postSummary = course + ":\n" + date + " at " + postTime + "\n" + user + ": " + textBeginning;
+                        String post = course + "\nPosted on: " + date + " at " + postTime + "\nUser " + user + " said: \n\"" + text + "\"";
+                        postSummaries.add(postSummary);
+                        posts.add(post);
+                    }
                 }
                 listAdapter.notifyDataSetChanged();
             }

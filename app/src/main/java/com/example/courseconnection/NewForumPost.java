@@ -3,6 +3,8 @@ package com.example.courseconnection;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -93,7 +95,8 @@ public class NewForumPost extends AppCompatActivity {
                                     Log.w(TAG, "Error writing document", e);
                                 }
                             });
-
+                    Intent result = new Intent();
+                    setResult(Activity.RESULT_OK, result);
                     finish();
             }
         }

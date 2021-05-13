@@ -95,5 +95,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <string name="emptyForumText">No forum posts to show here yet!</string>
+    <string name="emptyLeaderText">No courses in this department have been reviewed!</string>
+    <string name="leaderText">Top courses:</string>
 
 </resources>

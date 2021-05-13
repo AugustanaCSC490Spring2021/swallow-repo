@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +17,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -29,7 +26,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -97,6 +93,7 @@ public class Leaderboard extends Fragment {
 
         departmentSpinner = (Spinner)view.findViewById(R.id.departmentSpinner2);
         entriesSpinner = (Spinner)view.findViewById(R.id.entriesSpinner);
+        emptyText = view.findViewById(R.id.empty);
 
         //Setting up department spinner
         ArrayAdapter<CharSequence> coursesAdapter = ArrayAdapter.createFromResource(this.getContext(), R.array.courseCodes, android.R.layout.simple_spinner_item);
@@ -155,6 +152,7 @@ public class Leaderboard extends Fragment {
         lvCourses = view.findViewById(R.id.lvCourses);
         listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, courses);
         lvCourses.setAdapter(listAdapter);
+        lvCourses.setEmptyView(emptyText);
         setupListViewListener();
         return view;
     }
