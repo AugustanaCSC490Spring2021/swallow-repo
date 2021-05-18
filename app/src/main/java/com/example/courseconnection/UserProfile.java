@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +39,7 @@ public class UserProfile extends AppCompatActivity {
     private ArrayList<String> reviews = new ArrayList<>();
     private ArrayAdapter<String> courseNamesAdapter;
     private Toolbar toolbar;
+    private TextView profileText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,8 @@ public class UserProfile extends AppCompatActivity {
         lvReviews = findViewById(R.id.lvReviews);
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(userName);
+        profileText = findViewById(R.id.profileText);
+        profileText.setText("Reviews left by " + userName);
 
         // fill list
         populateList();

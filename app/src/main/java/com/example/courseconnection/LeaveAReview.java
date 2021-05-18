@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,7 +87,20 @@ public class LeaveAReview extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (courseCodes.contains(textView.getText().toString()) && !(textView.getText().toString().equals(""))) {
+                if (teacherTextBox.getText().toString().equals("Dr. Stonedahl") && ratingBar.getRating() <=3){
+                    // silly easter egg
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LeaveAReview.this);
+                    builder.setNegativeButton("No! I'm sorry!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    builder.setTitle("Oops!");
+                    builder.setMessage("There must be some mistake! Are you sure you want to give Dr. Stonedahl that score?");
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+                else if (courseCodes.contains(textView.getText().toString()) && !(textView.getText().toString().equals(""))) {
                     Map<String, Object> review = new HashMap<>();
                     Map<String, Object> course = new HashMap<>();
                     String courseTitle = textView.getText().toString() + "-" + courseNum.getText().toString();

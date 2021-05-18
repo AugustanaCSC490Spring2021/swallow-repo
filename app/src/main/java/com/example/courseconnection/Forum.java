@@ -40,11 +40,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Forum#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Forum extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
@@ -70,24 +65,6 @@ public class Forum extends Fragment {
 
     public Forum() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Review.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Review newInstance(String param1, String param2) {
-        Review fragment = new Review();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -190,10 +167,6 @@ public class Forum extends Fragment {
 
     private void populateList(String courseCode, String courseNum)
     {
-        postSummaries.clear();
-        posts.clear();
-        listAdapter.notifyDataSetChanged();
-
         String courseTitle = courseCode + "-" + courseNum;
         db = FirebaseFirestore.getInstance();
         Log.wtf("-----", "populating using course " + courseTitle);
@@ -204,6 +177,10 @@ public class Forum extends Fragment {
             @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
+                postSummaries.clear();
+                posts.clear();
+                listAdapter.notifyDataSetChanged();
+
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e);
                     return;
